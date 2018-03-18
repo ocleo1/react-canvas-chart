@@ -15,19 +15,26 @@ export default class PieChart extends React.Component {
       data: this.props.data
     };
 
-    this._end = 2;
+    if (this.props.animation) {
+      this._end = 2;
+    }
+
     this.renderMask = this.renderMask.bind(this);
   }
 
   componentDidMount() {
     this.renderPieChart();
-    this._AnimationId = window.requestAnimationFrame(this.renderMask);
+    if (this.props.animation) {
+      this._AnimationId = window.requestAnimationFrame(this.renderMask);
+    }
   }
   componentWillReceiveProps(nextProps) {
     this.setState({ data: nextProps.data }, () => {
       this.renderPieChart();
-      this._end = 2;
-      this._AnimationId = window.requestAnimationFrame(this.renderMask);
+      if (this.props.animation) {
+        this._end = 2;
+        this._AnimationId = window.requestAnimationFrame(this.renderMask);
+      }
     });
   }
 
@@ -82,23 +89,29 @@ export default class PieChart extends React.Component {
     const height = this.props.radius * 2;
 
     return (
-      <div style={{width: width, height: height}}>
+      <div style={{width: width, height: height, position: 'relative'}}>
         <canvas ref="pieChart" width={width} height={height} style={{position: 'absolute'}}>
           This text is displayed if your browser does not support HTML5 Canvas.
         </canvas>
-        <canvas ref="mask" width={width} height={height} style={{position: 'absolute'}}>
-          This text is displayed if your browser does not support HTML5 Canvas.
-        </canvas>
+        {
+          this.props.animation ?
+            <canvas ref="mask" width={width} height={height} style={{position: 'absolute'}}>
+              This text is displayed if your browser does not support HTML5 Canvas.
+            </canvas> :
+            null
+        }
       </div>
     );
   }
 }
 
 PieChart.defaultProps = {
+  animation: true,
   radius: 200,
   speed: 0.02
 };
 PieChart.propTypes = {
+  animation: React.PropTypes.bool,
   radius: React.PropTypes.number,
   speed: React.PropTypes.number,
   data: React.PropTypes.array.isRequired
