@@ -14,14 +14,20 @@ export default class PieChart extends React.Component {
     this.state = {
       data: this.props.data
     };
+
+    this._end = 2;
+    this.renderMask = this.renderMask.bind(this);
   }
 
   componentDidMount() {
     this.renderPieChart();
+    this._AnimationId = window.requestAnimationFrame(this.renderMask);
   }
   componentWillReceiveProps(nextProps) {
     this.setState({ data: nextProps.data }, () => {
       this.renderPieChart();
+      this._end = 2;
+      this._AnimationId = window.requestAnimationFrame(this.renderMask);
     });
   }
 
@@ -49,24 +55,51 @@ export default class PieChart extends React.Component {
       startAngle += angle(item.value / total);
     }
   }
+  renderMask() {
+    const { speed, radius } = this.props;
+
+    var maskCtx = ReactDOM.findDOMNode(this.refs.mask).getContext('2d');
+
+    this._end -= speed;
+    if (this._end > 0) {
+      maskCtx.clearRect(0, 0, radius * 2, radius * 2);
+      maskCtx.fillStyle = '#FFF';
+      maskCtx.beginPath();
+      maskCtx.moveTo(radius, radius);
+      maskCtx.arc(radius, radius, radius + 1, Math.PI * 0, Math.PI * this._end, false);
+      maskCtx.lineTo(radius, radius);
+      maskCtx.fill();
+
+      this._AnimationId = window.requestAnimationFrame(this.renderMask);
+    } else {
+      maskCtx.clearRect(0, 0, radius * 2, radius * 2);
+      window.cancelAnimationFrame(this._AnimationId);
+    }
+  }
 
   render() {
     const width = this.props.radius * 2;
     const height = this.props.radius * 2;
 
     return (
-      <canvas ref="pieChart" width={width} height={height}>
-        This text is displayed if your browser does not support HTML5 Canvas.
-      </canvas>
+      <div style={{width: width, height: height}}>
+        <canvas ref="pieChart" width={width} height={height} style={{position: 'absolute'}}>
+          This text is displayed if your browser does not support HTML5 Canvas.
+        </canvas>
+        <canvas ref="mask" width={width} height={height} style={{position: 'absolute'}}>
+          This text is displayed if your browser does not support HTML5 Canvas.
+        </canvas>
+      </div>
     );
   }
 }
 
 PieChart.defaultProps = {
-  radius: 100
+  radius: 200,
+  speed: 0.02
 };
 PieChart.propTypes = {
   radius: React.PropTypes.number,
+  speed: React.PropTypes.number,
   data: React.PropTypes.array.isRequired
 };
-
