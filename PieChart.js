@@ -11,10 +11,6 @@ export default class PieChart extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = {
-      data: this.props.data
-    };
-
     if (this.props.animation) {
       this._end = 2;
     }
@@ -28,31 +24,29 @@ export default class PieChart extends React.Component {
       this._AnimationId = window.requestAnimationFrame(this.renderMask);
     }
   }
-  componentWillReceiveProps(nextProps) {
-    this.setState({ data: nextProps.data }, () => {
-      this.renderPieChart();
-      if (this.props.animation) {
-        this._end = 2;
-        this._AnimationId = window.requestAnimationFrame(this.renderMask);
-      }
-    });
+  componentDidUpdate() {
+    this.renderPieChart();
+    if (this.props.animation) {
+      this._end = 2;
+      this._AnimationId = window.requestAnimationFrame(this.renderMask);
+    }
   }
 
   renderPieChart() {
-    const { radius } = this.props;
+    const { data, radius } = this.props;
 
     var angle = (ratio) => Math.PI * 2 * ratio;
     var startAngle = angle(0);
 
     var total = 0;
-    for (let item of this.state.data) {
+    for (let item of data) {
       total += item.value;
     }
 
     var pieChartCtx = ReactDOM.findDOMNode(this.refs.pieChart).getContext('2d');
     pieChartCtx.clearRect(0, 0, radius * 2, radius * 2);
 
-    for (let item of this.state.data) {
+    for (let item of data) {
       pieChartCtx.fillStyle = item.color;
       pieChartCtx.beginPath();
       pieChartCtx.moveTo(radius, radius);
