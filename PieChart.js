@@ -33,7 +33,7 @@ export default class PieChart extends React.Component {
   }
 
   renderPieChart() {
-    const { data, radius } = this.props;
+    const { anticlockwise, data, radius } = this.props;
 
     var angle = (ratio) => Math.PI * 2 * ratio;
     var startAngle = angle(0);
@@ -50,14 +50,14 @@ export default class PieChart extends React.Component {
       pieChartCtx.fillStyle = item.color;
       pieChartCtx.beginPath();
       pieChartCtx.moveTo(radius, radius);
-      pieChartCtx.arc(radius, radius, radius, startAngle, startAngle + angle(item.value / total), false);
+      pieChartCtx.arc(radius, radius, radius, startAngle, startAngle + angle(item.value / total), anticlockwise);
       pieChartCtx.lineTo(radius, radius);
       pieChartCtx.fill();
       startAngle += angle(item.value / total);
     }
   }
   renderMask() {
-    const { speed, radius } = this.props;
+    const { anticlockwise, speed, radius } = this.props;
 
     var maskCtx = ReactDOM.findDOMNode(this.refs.mask).getContext('2d');
 
@@ -67,7 +67,7 @@ export default class PieChart extends React.Component {
       maskCtx.fillStyle = '#FFF';
       maskCtx.beginPath();
       maskCtx.moveTo(radius, radius);
-      maskCtx.arc(radius, radius, radius + 1, Math.PI * 0, Math.PI * this._end, false);
+      maskCtx.arc(radius, radius, radius + 1, Math.PI * 0, Math.PI * this._end, anticlockwise);
       maskCtx.lineTo(radius, radius);
       maskCtx.fill();
 
@@ -101,11 +101,13 @@ export default class PieChart extends React.Component {
 
 PieChart.defaultProps = {
   animation: true,
+  anticlockwise: false,
   radius: 200,
   speed: 0.02
 };
 PieChart.propTypes = {
   animation: React.PropTypes.bool,
+  anticlockwise: React.PropTypes.bool,
   radius: React.PropTypes.number,
   speed: React.PropTypes.number,
   data: React.PropTypes.array.isRequired
